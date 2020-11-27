@@ -1,0 +1,42 @@
+/* haxball-bot CLI parser (built on https://pegjs.org) */
+{
+
+const capitalize = (s) => {
+	if (typeof s !== 'string') return ''
+	return s.charAt(0).toUpperCase() + s.slice(1)
+};
+
+}
+
+start = line
+
+line = at:"!" _ cmd:command _			{ return cmd; }
+
+command "command" =	"help"				{ return new CliCmd(Cli.help, null); }
+					/ start_cmd:start_cmd { return start_cmd; }
+          / "stop"			{ return new CliCmd(Cli.stop, null); }
+					/ "pause"			{ return new CliCmd(Cli.pause, null); }
+          / go_cmd: go_cmd 	{ return go_cmd; }
+          / auto_cmd: auto_cmd { return auto_cmd; }
+
+go_cmd "go command" = "go" _ team:team 	{ return team; }
+
+team "team" = "red"			{ return new CliCmd(Cli.go, Team.RED); }
+					/ "blue"			{ return new CliCmd(Cli.go, Team.BLUE); }
+    			/ "spec"			{ return new CliCmd(Cli.go, Team.SPEC); }
+start_cmd "start command" = cmd:("start" / "restart") _ stadium: id? {
+							if (cmd === "start") {
+                return new CliCmd(Cli.start, stadium);
+							}
+              else if (cmd === "restart") {
+                return new CliCmd(Cli.restart, stadium);
+							}
+						}
+
+id "id" = ids:([a-zA-Z]([a-zA-Z] / [0-9])*) { return capitalize(ids.flat().join("")); }
+
+auto_cmd "autostart command" = "as" _ cmd:("on" { return new CliCmd(Cli.autostart, true); }
+					/ "off" { return new CliCmd(Cli.autostart, false); } )
+                { return cmd; }
+
+_ "whitespace" = [ \t\n\r]*
