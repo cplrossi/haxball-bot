@@ -247,7 +247,7 @@ function init() {
 			let delay = 10;
 
 			(async () => {
-				let msg = "Starting in ${delay} seconds";
+				let msg = "Starting in " + delay + " seconds...";
 
 				console.log(msg);
 				room.sendAnnouncement(msg);
