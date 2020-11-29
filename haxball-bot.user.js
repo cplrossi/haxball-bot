@@ -241,13 +241,24 @@ function init() {
 	}
 
 	room.onTeamVictory = function (s) {
-		if (configAutostart == true) {
-			(async () => {
-				for (let i = 10; i > 0; --i) {
-					if (i == 10) room.sendAnnouncement("Starting in 10");
-					else room.sendAnnouncement(i.toString());
+		isStopped = true;
 
-					await sleep(1000);
+		if (configAutostart == true) {
+			let delay = 10;
+
+			(async () => {
+				let msg = "Starting in ${delay} seconds";
+
+				console.log(msg);
+				room.sendAnnouncement(msg);
+
+				for (let i = delay; i > 0; --i) {
+					if (configAutostart && isStopped) {
+						console.log(i)
+
+						await sleep(1000);
+					}
+					else return;
 				}
 
 				room.stopGame();
